@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Übungen: Russische Redewendungen mit ПОД</title>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --border-color: #dcdde1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+
+        .intro {
+            background: #eef2f3;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--accent-color);
+        }
+
+        .exercise-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .exercise-card {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #fafafa;
+            transition: transform 0.2s;
+        }
+
+        .sentence {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .translation {
+            font-style: italic;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+
+        select {
+            padding: 8px;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            background-color: white;
+            transition: all 0.3s ease;
+        }
+
+        select.correct {
+            border-color: var(--success-color);
+            background-color: #eafaf1;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        select.incorrect {
+            border-color: var(--error-color);
+            background-color: #fdedec;
+            color: var(--error-color);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: opacity 0.2s;
+        }
+
+        .btn-reset { background-color: #95a5a6; color: white; }
+        .btn-solve { background-color: var(--accent-color); color: white; }
+        button:hover { opacity: 0.8; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .sentence { font-size: 1rem; }
+            select { width: 100%; margin: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Redewendungen mit ПОД</h1>
+
+    <div class="intro">
+        <strong>Anleitung:</strong> Wählen Sie in den folgenden 20 Sätzen die jeweils passende Redewendung mit der Präposition <strong>ПОД</strong> aus. Sobald Sie eine Auswahl treffen, erhalten Sie sofort eine farbliche Rückmeldung (Grün = Richtig, Rot = Falsch). Sie benötigen keine russische Tastatur.
+    </div>
+
+    <div class="exercise-grid">
+        <!-- Task 1 -->
+        <div class="exercise-card" id="task1">
+            <div class="sentence">1. Мой телефон всегда у меня <select onchange="check(this, 'под рукой')">
+                <option value="">...</option>
+                <option value="под рукой">под рукой</option>
+                <option value="под замком">под замком</option>
+            </select>.</div>
+            <div class="translation">„Mein Telefon ist bei mir immer griffbereit.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task1')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task1', 'под рукой')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 2 -->
+        <div class="exercise-card" id="task2">
+            <div class="sentence">2. Где ключи? — Они прямо у тебя <select onchange="check(this, 'под носом')">
+                <option value="">...</option>
+                <option value="под носом">под носом</option>
+                <option value="под охраной">под охраной</option>
+            </select>!</div>
+            <div class="translation">„Wo sind die Schlüssel? — Sie sind direkt vor deiner Nase!“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task2')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task2', 'под носом')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 3 -->
+        <div class="exercise-card" id="task3">
+            <div class="sentence">3. Он боится спорить с женой, он у неё <select onchange="check(this, 'под каблуком')">
+                <option value="">...</option>
+                <option value="под каблуком">под каблуком</option>
+                <option value="под впечатлением">под впечатлением</option>
+            </select>.</div>
+            <div class="translation">„Er hat Angst, mit seiner Frau zu streiten, er steht unter ihrem Pantoffel.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task3')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task3', 'под каблуком')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 4 -->
+        <div class="exercise-card" id="task4">
+            <div class="sentence">4. Важные документы лежат в сейфе <select onchange="check(this, 'под замком')">
+                <option value="">...</option>
+                <option value="под запретом">под запретом</option>
+                <option value="под замком">под замком</option>
+            </select>.</div>
+            <div class="translation">„Wichtige Dokumente liegen im Tresor unter Verschluss.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task4')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task4', 'под замком')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 5 -->
+        <div class="exercise-card" id="task5">
+            <div class="sentence">5. Не волнуйтесь, всё <select onchange="check(this, 'под контролем')">
+                <option value="">...</option>
+                <option value="под контролем">под контролем</option>
+                <option value="под угрозой">под угрозой</option>
+            </select>.</div>
+            <div class="translation">„Keine Sorge, alles ist unter Kontrolle.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task5')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task5', 'под контролем')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 6 -->
+        <div class="exercise-card" id="task6">
+            <div class="sentence">6. Я до сих пор <select onchange="check(this, 'под впечатлением')">
+                <option value="">...</option>
+                <option value="под влиянием">под влиянием</option>
+                <option value="под впечатлением">под впечатлением</option>
+            </select> от вчерашнего фильма.</div>
+            <div class="translation">„Ich bin immer noch beeindruckt vom gestrigen Film.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task6')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task6', 'под впечатлением')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 7 -->
+        <div class="exercise-card" id="task7">
+            <div class="sentence">7. Он подписал контракт <select onchange="check(this, 'под давлением')">
+                <option value="">...</option>
+                <option value="под давлением">под давлением</option>
+                <option value="под охраной">под охраной</option>
+            </select>.</div>
+            <div class="translation">„Er hat den Vertrag unter Druck unterschrieben.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task7')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task7', 'под давлением')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 8 -->
+        <div class="exercise-card" id="task8">
+            <div class="sentence">8. Амурский тигр находится <select onchange="check(this, 'под угрозой')">
+                <option value="">...</option>
+                <option value="под угрозой">под угрозой</option>
+                <option value="под присмотром">под присмотром</option>
+            </select> исчезновения.</div>
+            <div class="translation">„Der Amurtiger ist vom Aussterben bedroht.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task8')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task8', 'под угрозой')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 9 -->
+        <div class="exercise-card" id="task9">
+            <div class="sentence">9. Эти животные находятся <select onchange="check(this, 'под защитой')">
+                <option value="">...</option>
+                <option value="под каблуком">под каблуком</option>
+                <option value="под защитой">под защитой</option>
+            </select> государства.</div>
+            <div class="translation">„Diese Tiere stehen unter dem Schutz des Staates.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task9')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task9', 'под защитой')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 10 -->
+        <div class="exercise-card" id="task10">
+            <div class="sentence">10. Мой дом <select onchange="check(this, 'под охраной')">
+                <option value="">...</option>
+                <option value="под охраной">под охраной</option>
+                <option value="под носом">под носом</option>
+            </select>, там стоит сигнализация.</div>
+            <div class="translation">„Mein Haus ist bewacht, dort ist eine Alarmanlage installiert.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task10')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task10', 'под охраной')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 11 -->
+        <div class="exercise-card" id="task11">
+            <div class="sentence">11. Дети в садике всегда <select onchange="check(this, 'под присмотром')">
+                <option value="">...</option>
+                <option value="под запретом">под запретом</option>
+                <option value="под присмотром">под присмотром</option>
+            </select> воспитателя.</div>
+            <div class="translation">„Die Kinder im Kindergarten sind immer unter Aufsicht der Erzieherin.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task11')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task11', 'под присмотром')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 12 -->
+        <div class="exercise-card" id="task12">
+            <div class="sentence">12. Эта тема в нашей семье <select onchange="check(this, 'под запретом')">
+                <option value="">...</option>
+                <option value="под замком">под замком</option>
+                <option value="под запретом">под запретом</option>
+            </select>.</div>
+            <div class="translation">„Dieses Thema ist in unserer Familie tabu (verboten).“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task12')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task12', 'под запретом')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 13 -->
+        <div class="exercise-card" id="task13">
+            <div class="sentence">13. Он попал <select onchange="check(this, 'под влияние')">
+                <option value="">...</option>
+                <option value="под влияние">под влияние</option>
+                <option value="под впечатление">под впечатление</option>
+            </select> плохой компании.</div>
+            <div class="translation">„Er ist unter den Einfluss einer schlechten Gesellschaft geraten.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task13')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task13', 'под влияние')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 14 -->
+        <div class="exercise-card" id="task14">
+            <div class="sentence">14. Ручка всегда должна быть <select onchange="check(this, 'под рукой')">
+                <option value="">...</option>
+                <option value="под рукой">под рукой</option>
+                <option value="под носом">под носом</option>
+            </select>.</div>
+            <div class="translation">„Ein Stift sollte immer griffbereit sein.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task14')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task14', 'под рукой')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 15 -->
+        <div class="exercise-card" id="task15">
+            <div class="sentence">15. Решение было прямо <select onchange="check(this, 'под носом')">
+                <option value="">...</option>
+                <option value="под носом">под носом</option>
+                <option value="под контролем">под контролем</option>
+            </select>, а я его не видел.</div>
+            <div class="translation">„Die Lösung war direkt vor meiner Nase, aber ich habe sie nicht gesehen.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task15')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task15', 'под носом')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 16 -->
+        <div class="exercise-card" id="task16">
+            <div class="sentence">16. Пациент находится <select onchange="check(this, 'под присмотром')">
+                <option value="">...</option>
+                <option value="под присмотром">под присмотром</option>
+                <option value="под охраной">под охраной</option>
+            </select> врачей.</div>
+            <div class="translation">„Der Patient ist unter Aufsicht der Ärzte.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task16')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task16', 'под присмотром')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 17 -->
+        <div class="exercise-card" id="task17">
+            <div class="sentence">17. Всё шло <select onchange="check(this, 'под давлением')">
+                <option value="">...</option>
+                <option value="под давлением">под давлением</option>
+                <option value="под влиянием">под влиянием</option>
+            </select> обстоятельств.</div>
+            <div class="translation">„Alles geschah unter dem Druck der Umstände.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task17')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task17', 'под давлением')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 18 -->
+        <div class="exercise-card" id="task18">
+            <div class="sentence">18. На диете мой холодильник всегда <select onchange="check(this, 'под замком')">
+                <option value="">...</option>
+                <option value="под замком">под замком</option>
+                <option value="под защитой">под защитой</option>
+            </select>.</div>
+            <div class="translation">„Während einer Diät ist mein Kühlschrank immer unter Verschluss.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task18')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task18', 'под замком')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 19 -->
+        <div class="exercise-card" id="task19">
+            <div class="sentence">19. Мы были <select onchange="check(this, 'под впечатлением')">
+                <option value="">...</option>
+                <option value="под влиянием">под влиянием</option>
+                <option value="под впечатлением">под впечатлением</option>
+            </select> от красоты Петербурга.</div>
+            <div class="translation">„Wir waren beeindruckt von der Schönheit von Petersburg.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task19')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task19', 'под впечатлением')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+        <!-- Task 20 -->
+        <div class="exercise-card" id="task20">
+            <div class="sentence">20. Твоё здоровье <select onchange="check(this, 'под угрозой')">
+                <option value="">...</option>
+                <option value="под угрозой">под угрозой</option>
+                <option value="под запретом">под запретом</option>
+            </select>, если ты не бросишь курить.</div>
+            <div class="translation">„Deine Gesundheit ist bedroht, wenn du nicht mit dem Rauchen aufhörst.“</div>
+            <div class="button-group">
+                <button class="btn-reset" onclick="resetTask('task20')">Zurücksetzen</button>
+                <button class="btn-solve" onclick="solveTask('task20', 'под угрозой')">Lösung anzeigen</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function check(selectElement, correctAnswer) {
+        if (selectElement.value === "") {
+            selectElement.className = "";
+        } else if (selectElement.value === correctAnswer) {
+            selectElement.className = "correct";
+        } else {
+            selectElement.className = "incorrect";
+        }
+    }
+
+    function resetTask(taskId) {
+        const select = document.querySelector(`#${taskId} select`);
+        select.value = "";
+        select.className = "";
+    }
+
+    function solveTask(taskId, correctAnswer) {
+        const select = document.querySelector(`#${taskId} select`);
+        select.value = correctAnswer;
+        select.className = "correct";
+    }
+</script>
+
+</body>
+</html>
