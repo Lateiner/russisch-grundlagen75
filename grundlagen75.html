@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch lernen: Ausdrücke mit ПОД</title>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --bg: #f8f9fa;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { text-align: center; color: var(--primary); }
+
+        .intro {
+            background: #eef2f7;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 6px solid var(--accent);
+            margin-bottom: 30px;
+        }
+
+        .exercise-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+        }
+
+        .task-row {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* Form-Elemente */
+        select, .drop-zone {
+            padding: 8px 12px;
+            font-size: 16px;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            background: white;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .correct { border-color: var(--success) !important; background-color: #e8f8f0 !important; color: #1e8449 !important; }
+        .incorrect { border-color: var(--error) !important; background-color: #fdedec !important; color: #943126 !important; }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .btn-reset { background: #95a5a6; color: white; }
+        .btn-solve { background: var(--accent); color: white; }
+        button:hover { opacity: 0.8; }
+
+        /* Drag and Drop */
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: #f1f1f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .drag-item {
+            background: var(--primary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .drop-zone {
+            min-width: 150px;
+            height: 35px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            vertical-align: middle;
+        }
+
+        /* Radio Buttons */
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+        }
+
+        .radio-option {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .task-row { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Redewendungen: ПОД</h1>
+
+    <div class="intro">
+        <strong>Kurzerklärung:</strong> Die Präposition <strong>ПОД</strong> wird in vielen festen Ausdrücken mit dem Instrumental verwendet. Sie beschreibt oft Zustände wie Schutz, Kontrolle, Druck oder räumliche Unmittelbarkeit.
+    </div>
+
+    <!-- Aufgaben 1-10: Dropdown -->
+    <div class="exercise-section">
+        <h2>Aufgaben 1-10: Ergänzen Sie den passenden Ausdruck</h2>
+        
+        <div id="q1" class="task-row">
+            1. Мой телефон всегда <select onchange="verifySelect(this, 'под рукой')">
+                <option value="">--wählen--</option>
+                <option value="под рукой">под рукой</option>
+                <option value="под замком">под замком</option>
+            </select> (griffbereit).
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('q1')">Reset</button>
+                <button class="btn-solve" onclick="solveSelect('q1', 'под рукой')">Lösung</button>
+            </div>
+        </div>
+
+        <div id="q2" class="task-row">
+            2. Всё в порядке, ситуация <select onchange="verifySelect(this, 'под контролем')">
+                <option value="">--wählen--</option>
+                <option value="под угрозой">под угрозой</option>
+                <option value="под контролем">под контролем</option>
+            </select>.
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('q2')">Reset</button>
+                <button class="btn-solve" onclick="solveSelect('q2', 'под контролем')">Lösung</button>
+            </div>
+        </div>
+
+        <div id="q3" class="task-row">
+            3. Это было прямо у него <select onchange="verifySelect(this, 'под носом')">
+                <option value="">--wählen--</option>
+                <option value="под носом">под носом</option>
+                <option value="под присмотром">под присмотром</option>
+            </select> (vor der Nase).
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('q3')">Reset</button>
+                <button class="btn-solve" onclick="solveSelect('q3', 'под носом')">Lösung</button>
+            </div>
+        </div>
+
+        <div id="q4" class="task-row">
+            4. Он всё делает так, как хочет жена, он <select onchange="verifySelect(this, 'под каблуком')">
+                <option value="">--wählen--</option>
+                <option value="под каблуком">под каблуком</option>
+                <option value="под влиянием">под влиянием</option>
+            </select>.
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('q4')">Reset</button>
+                <button class="btn-solve" onclick="solveSelect('q4', 'под каблуком')">Lösung</button>
+            </div>
+        </div>
+
+        <div id="q5" class="task-row">
+            5. Деньги лежат в сейфе <select onchange="verifySelect(this, 'под замком')">
+                <option value="">--wählen--</option>
+                <option value="под замком">под замком</option>
+                <option value="под охраной">под охраной</option>
+            </select>.
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('q5')">Reset</button>
+                <button class="btn-solve" onclick="solveSelect('q5', 'под замком')">Lösung</button>
+            </div>
+        </div>
+
+        <div id="q6" class="task-row">
+            6. Редкие птицы находятся <select onchange="verifySelect(this, 'под угрозой')">
+                <option value="">--wählen--</option>
+                <option value="под впечатлением">под впечатлением</option>
+                <option value="под угрозой">под угрозой</option>
+            </select> вымирания.
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('q6')">Reset</button>
+                <button class="btn-solve" onclick="solveSelect('q6', 'под угрозой')">Lösung</button>
+            </div>
+        </div>
+
+        <div id="q7" class="task-row">
+            7. После спектакля я был <select onchange="verifySelect(this, 'под впечатлением')">
+                <option value="">--wählen--</option>
+                <option value="под давлением">под давлением</option>
+                <option value="под впечатлением">под впечатлением</option>
+            </select>.
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('q7')">Reset</button>
+                <button class="btn-solve" onclick="solveSelect('q7', 'под впечатлением')">Lösung</button>
+            </div>
+        </div>
+
+        <div id="q8" class="task-row">
+            8. Он подписал это <select onchange="verifySelect(this, 'под давлением')">
+                <option value="">--wählen--</option>
+                <option value="под давлением">под давлением</option>
+                <option value="под присмотром">под присмотром</option>
+            </select> (unter Druck).
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('q8')">Reset</button>
+                <button class="btn-solve" onclick="solveSelect('q8', 'под давлением')">Lösung</button>
+            </div>
+        </div>
+
+        <div id="q9" class="task-row">
+            9. Эти земли находятся <select onchange="verifySelect(this, 'под защитой')">
+                <option value="">--wählen--</option>
+                <option value="под каблуком">под каблуком</option>
+                <option value="под защитой">под защитой</option>
+            </select> государства.
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('q9')">Reset</button>
+                <button class="btn-solve" onclick="solveSelect('q9', 'под защитой')">Lösung</button>
+            </div>
+        </div>
+
+        <div id="q10" class="task-row">
+            10. Дети играют в саду <select onchange="verifySelect(this, 'под присмотром')">
+                <option value="">--wählen--</option>
+                <option value="под присмотром">под присмотром</option>
+                <option value="под запретом">под запретом</option>
+            </select>.
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask('q10')">Reset</button>
+                <button class="btn-solve" onclick="solveSelect('q10', 'под присмотром')">Lösung</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aufgaben 11-15: Drag and Drop -->
+    <div class="exercise-section">
+        <h2>Aufgaben 11-15: Ziehen Sie die Begriffe</h2>
+        <div class="word-bank">
+            <div class="drag-item" draggable="true" id="d1">под запретом</div>
+            <div class="drag-item" draggable="true" id="d2">под влиянием</div>
+            <div class="drag-item" draggable="true" id="d3">под охраной</div>
+            <div class="drag-item" draggable="true" id="d4">под рукой</div>
+            <div class="drag-item" draggable="true" id="d5">под присмотром</div>
+        </div>
+
+        <div id="q11" class="task-row">
+            11. Das Thema ist tabu: <div class="drop-zone" ondrop="drop(event, 'под запретом')" ondragover="allowDrop(event)"></div>
+            <button class="btn-solve" onclick="solveDrop('q11', 'под запретом')">Lösung</button>
+        </div>
+        <div id="q12" class="task-row">
+            12. Unter Einfluss stehen: <div class="drop-zone" ondrop="drop(event, 'под влиянием')" ondragover="allowDrop(event)"></div>
+            <button class="btn-solve" onclick="solveDrop('q12', 'под влиянием')">Lösung</button>
+        </div>
+        <div id="q13" class="task-row">
+            13. Bewacht werden: <div class="drop-zone" ondrop="drop(event, 'под охраной')" ondragover="allowDrop(event)"></div>
+            <button class="btn-solve" onclick="solveDrop('q13', 'под охраной')">Lösung</button>
+        </div>
+        <div id="q14" class="task-row">
+            14. Griffbereit: <div class="drop-zone" ondrop="drop(event, 'под рукой')" ondragover="allowDrop(event)"></div>
+            <button class="btn-solve" onclick="solveDrop('q14', 'под рукой')">Lösung</button>
+        </div>
+        <div id="q15" class="task-row">
+            15. Unter Aufsicht: <div class="drop-zone" ondrop="drop(event, 'под присмотром')" ondragover="allowDrop(event)"></div>
+            <button class="btn-solve" onclick="solveDrop('q15', 'под присмотром')">Lösung</button>
+        </div>
+    </div>
+
+    <!-- Aufgaben 16-20: Multiple Choice -->
+    <div class="exercise-section">
+        <h2>Aufgaben 16-20: Wählen Sie die korrekte Bedeutung</h2>
+        
+        <div id="q16" class="task-row">
+            <p>16. Was bedeutet „под каблуком“?</p>
+            <div class="radio-group">
+                <div class="radio-option" onclick="verifyRadio(this, true, 'q16')">Unterwürfig gegenüber dem Partner</div>
+                <div class="radio-option" onclick="verifyRadio(this, false, 'q16')">In hohen Schuhen laufen</div>
+            </div>
+            <button class="btn-solve" onclick="solveRadio('q16')">Lösung</button>
+        </div>
+
+        <div id="q17" class="task-row">
+            <p>17. Was bedeutet „под носом“?</p>
+            <div class="radio-group">
+                <div class="radio-option" onclick="verifyRadio(this, false, 'q17')">Einen Schnupfen haben</div>
+                <div class="radio-option" onclick="verifyRadio(this, true, 'q17')">Ganz in der Nähe und sichtbar</div>
+            </div>
+            <button class="btn-solve" onclick="solveRadio('q17')">Lösung</button>
+        </div>
+
+        <div id="q18" class="task-row">
+            <p>18. Was bedeutet „под замком“?</p>
+            <div class="radio-group">
+                <div class="radio-option" onclick="verifyRadio(this, true, 'q18')">Abgeschlossen / unter Verschluss</div>
+                <div class="radio-option" onclick="verifyRadio(this, false, 'q18')">In einem Schloss wohnen</div>
+            </div>
+            <button class="btn-solve" onclick="solveRadio('q18')">Lösung</button>
+        </div>
+
+        <div id="q19" class="task-row">
+            <p>19. Was bedeutet „под присмотром“?</p>
+            <div class="radio-group">
+                <div class="radio-option" onclick="verifyRadio(this, false, 'q19')">Ganz genau hinsehen</div>
+                <div class="radio-option" onclick="verifyRadio(this, true, 'q19')">Betreut oder beaufsichtigt werden</div>
+            </div>
+            <button class="btn-solve" onclick="solveRadio('q19')">Lösung</button>
+        </div>
+
+        <div id="q20" class="task-row">
+            <p>20. Was bedeutet „под запретом“?</p>
+            <div class="radio-group">
+                <div class="radio-option" onclick="verifyRadio(this, true, 'q20')">Es ist nicht erlaubt</div>
+                <div class="radio-option" onclick="verifyRadio(this, false, 'q20')">Es ist gefährlich</div>
+            </div>
+            <button class="btn-solve" onclick="solveRadio('q20')">Lösung</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Dropdown Logik ---
+    function verifySelect(el, correctAns) {
+        if (el.value === "") {
+            el.className = "";
+        } else if (el.value === correctAns) {
+            el.className = "correct";
+        } else {
+            el.className = "incorrect";
+        }
+    }
+
+    function solveSelect(parentId, correctAns) {
+        const sel = document.querySelector(`#${parentId} select`);
+        sel.value = correctAns;
+        sel.className = "correct";
+    }
+
+    // --- Drag and Drop Logik ---
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    function drop(ev, correctAns) {
+        ev.preventDefault();
+        const data = ev.dataTransfer.getData("text");
+        const draggedEl = document.getElementById(data);
+        const text = draggedEl.innerText;
+        
+        ev.target.innerText = text;
+        if (text === correctAns) {
+            ev.target.className = "drop-zone correct";
+        } else {
+            ev.target.className = "drop-zone incorrect";
+        }
+    }
+
+    // Für Touch-Support und Item-ID Management
+    document.querySelectorAll('.drag-item').forEach(item => {
+        item.addEventListener('dragstart', (ev) => {
+            ev.dataTransfer.setData("text", ev.target.id);
+        });
+    });
+
+    function solveDrop(parentId, correctAns) {
+        const zone = document.querySelector(`#${parentId} .drop-zone`);
+        zone.innerText = correctAns;
+        zone.className = "drop-zone correct";
+    }
+
+    // --- Radio/Multiple Choice Logik ---
+    function verifyRadio(el, isCorrect, parentId) {
+        // Alle Optionen im gleichen Set zurücksetzen
+        const options = document.querySelectorAll(`#${parentId} .radio-option`);
+        options.forEach(opt => opt.className = "radio-option");
+        
+        // Aktuelle Auswahl färben
+        if (isCorrect) {
+            el.classList.add("correct");
+        } else {
+            el.classList.add("incorrect");
+        }
+    }
+
+    function solveRadio(parentId) {
+        const options = document.querySelectorAll(`#${parentId} .radio-option`);
+        options.forEach(opt => {
+            opt.className = "radio-option";
+            // Wir "wissen" hier im Script, welche Option logisch richtig ist anhand des onclick Attributs
+            if (opt.getAttribute('onclick').includes('true')) {
+                opt.classList.add("correct");
+            }
+        });
+    }
+
+    // --- Reset ---
+    function resetTask(id) {
+        const container = document.getElementById(id);
+        const select = container.querySelector('select');
+        if (select) {
+            select.value = "";
+            select.className = "";
+        }
+        const zones = container.querySelectorAll('.drop-zone');
+        zones.forEach(z => {
+            z.innerText = "";
+            z.className = "drop-zone";
+        });
+        const radios = container.querySelectorAll('.radio-option');
+        radios.forEach(r => r.className = "radio-option");
+    }
+</script>
+
+</body>
+</html>
