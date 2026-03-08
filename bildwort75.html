@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bild-Wort-Zuordnung: Russische Phrasen mit ПОД</title>
+    <!-- Polyfill für Touch-Geräte -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #f0f2f5;
+            --card: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: var(--card);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 { text-align: center; font-size: 1.8rem; margin-bottom: 10px; }
+        p.instruction { text-align: center; color: #666; margin-bottom: 20px; }
+
+        /* Wortbank */
+        .word-bank {
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            background: #fff;
+            padding: 15px;
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .drag-item {
+            background: var(--primary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: grab;
+            font-weight: bold;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .drag-item:active { cursor: grabbing; }
+
+        /* Übungs-Gitter */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .exercise-card {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+
+        .icon-box {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .drop-zone {
+            width: 100%;
+            min-height: 40px;
+            border: 2px dashed #bbb;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        /* Feedback Zustände */
+        .correct { background-color: #d4edda !important; border-color: var(--success) !important; color: var(--success); }
+        .incorrect { background-color: #f8d7da !important; border-color: var(--error) !important; color: var(--error); }
+
+        .btn-group {
+            display: flex;
+            gap: 5px;
+            width: 100%;
+        }
+
+        button {
+            flex: 1;
+            padding: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .btn-reset { background: #95a5a6; color: white; }
+        .btn-solve { background: var(--accent); color: white; }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr 1fr; }
+            h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Bild-Wort-Zuordnung: Redewendungen mit ПОД</h1>
+    <p class="instruction">Ziehe die russischen Begriffe auf die passenden Bilder. Feedback erfolgt sofort!</p>
+
+    <!-- Wortbank -->
+    <div class="word-bank" id="main-bank">
+        <!-- Begriffe werden per JS gemischt -->
+    </div>
+
+    <!-- Übungen -->
+    <div class="grid" id="exercise-grid">
+        <!-- 20 Aufgaben werden per JS generiert -->
+    </div>
+</div>
+
+<script>
+    const data = [
+        { id: 1, text: "под носом", icon: "👃", hint: "Direkt vor der Nase" },
+        { id: 2, text: "под рукой", icon: "✋", hint: "Griffbereit" },
+        { id: 3, text: "под каблуком", icon: "👠", hint: "Unter dem Pantoffel" },
+        { id: 4, text: "под замком", icon: "🔒", hint: "Hinter Schloss und Riegel" },
+        { id: 5, text: "под контролем", icon: "🎮", hint: "Unter Kontrolle" },
+        { id: 6, text: "под впечатлением", icon: "😲", hint: "Beeindruckt" },
+        { id: 7, text: "под давлением", icon: "⚖️", hint: "Unter Druck" },
+        { id: 8, text: "под угрозой", icon: "⚠️", hint: "Bedroht" },
+        { id: 9, text: "под защитой", icon: "🛡️", hint: "Unter Schutz" },
+        { id: 10, text: "под охраной", icon: "👮", hint: "Bewacht" },
+        { id: 11, text: "под присмотром", icon: "👀", hint: "Unter Aufsicht" },
+        { id: 12, text: "под запретом", icon: "🚫", hint: "Verboten" },
+        { id: 13, text: "под влиянием", icon: "🌊", hint: "Unter Einfluss" },
+        { id: 14, text: "под охраной", icon: "🏠", hint: "Haus gesichert" },
+        { id: 15, text: "под угрозой", icon: "🐦", hint: "Aussterben bedroht" },
+        { id: 16, text: "под впечатлением", icon: "🎭", hint: "Vom Theater beeindruckt" },
+        { id: 17, text: "под замком", icon: "📦", hint: "Essen weggeschlossen" },
+        { id: 18, text: "под присмотром", icon: "🧸", hint: "Kind betreut" },
+        { id: 19, text: "под давлением", icon: "✍️", hint: "Unterschrift erzwungen" },
+        { id: 20, text: "под контролем", icon: "🧭", hint: "Situation im Griff" }
+    ];
+
+    const exerciseGrid = document.getElementById('exercise-grid');
+    const mainBank = document.getElementById('main-bank');
+
+    // Initialisierung
+    function init() {
+        // Wortbank füllen (nur einzigartige Texte für die Bank)
+        const uniqueTexts = [...new Set(data.map(d => d.text))].sort();
+        uniqueTexts.forEach((text, index) => {
+            const div = document.createElement('div');
+            div.className = 'drag-item';
+            div.draggable = true;
+            div.innerText = text;
+            div.id = `word-${index}`;
+            div.addEventListener('dragstart', drag);
+            mainBank.appendChild(div);
+        });
+
+        // Übungen generieren
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'exercise-card';
+            card.id = `card-${item.id}`;
+            card.innerHTML = `
+                <div class="icon-box">${item.icon}</div>
+                <div class="drop-zone" id="drop-${item.id}" 
+                     ondrop="drop(event, '${item.text}')" 
+                     ondragover="allowDrop(event)">...</div>
+                <div style="font-size: 0.7rem; color: #999; margin-bottom: 5px;">${item.hint}</div>
+                <div class="btn-group">
+                    <button class="btn-reset" onclick="resetOne(${item.id})">Reset</button>
+                    <button class="btn-solve" onclick="solveOne(${item.id}, '${item.text}')">Lösung</button>
+                </div>
+            `;
+            exerciseGrid.appendChild(card);
+        });
+    }
+
+    // Drag & Drop Funktionen
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    function drag(ev) {
+        ev.dataTransfer.setData("text", ev.target.innerText);
+    }
+
+    function drop(ev, correctText) {
+        ev.preventDefault();
+        const draggedText = ev.dataTransfer.getData("text");
+        const zone = ev.target;
+
+        if (!zone.classList.contains('drop-zone')) return;
+
+        zone.innerText = draggedText;
+        if (draggedText === correctText) {
+            zone.className = "drop-zone correct";
+        } else {
+            zone.className = "drop-zone incorrect";
+        }
+    }
+
+    // Lösung & Reset
+    window.solveOne = function(id, correctText) {
+        const zone = document.getElementById(`drop-${id}`);
+        zone.innerText = correctText;
+        zone.className = "drop-zone correct";
+    };
+
+    window.resetOne = function(id) {
+        const zone = document.getElementById(`drop-${id}`);
+        zone.innerText = "...";
+        zone.className = "drop-zone";
+    };
+
+    init();
+</script>
+
+</body>
+</html>
