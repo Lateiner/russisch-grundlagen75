@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satzbau-Profi: Russische Redewendungen mit ПОД</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #f0f4f8;
+            --white: #ffffff;
+            --border: #dcdde1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: var(--white);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        h1 { text-align: center; color: var(--primary); margin-bottom: 10px; }
+        .instruction { text-align: center; color: #666; margin-bottom: 30px; line-height: 1.5; font-size: 1rem; }
+
+        .exercise-card {
+            background: #fff;
+            border: 2px solid #f0f4f8;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+        }
+
+        .translation { font-weight: bold; color: var(--secondary); margin-bottom: 15px; font-size: 1.1rem; }
+
+        /* Wortbank für den Satzbau */
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            background: #f8fafc;
+            border: 2px dashed var(--secondary);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            min-height: 45px;
+        }
+
+        .word-item {
+            background: var(--primary);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        /* Feedback Farben */
+        .correct { background-color: var(--success) !important; border-color: #1e8449 !important; color: white !important; }
+        .incorrect { background-color: var(--error) !important; border-color: #c0392b !important; color: white !important; }
+
+        /* Satzbau Bereich */
+        .sentence-area {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            min-height: 60px;
+            padding: 20px 0;
+            border-top: 1px solid #eee;
+        }
+
+        .slot {
+            min-width: 80px;
+            height: 45px;
+            border-bottom: 3px solid #cbd5e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .fixed-word {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--primary);
+            padding: 0 5px;
+        }
+
+        /* Grammatik Wahl (Nomen Buttons) */
+        .noun-options-container {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .options-label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .options-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover { background: #ebf8ff; }
+
+        .btn-reset {
+            margin-top: 20px;
+            background: #94a3b8;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .slot { min-width: 60px; }
+            .options-row { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Satzbau & Grammatik: ПОД</h1>
+    <div class="instruction">
+        1. Bilde den Satz: Tippe die Wörter oben an. <b>Grün</b> = richtig, <b>Rot</b> = falsch.<br>
+        2. Wähle die richtige Form: Klicke auf einen der Buttons unten. <b>Grün</b> = richtig, <b>Rot</b> = falsch.
+    </div>
+
+    <div id="exercise-list"></div>
+
+    <button style="margin: 40px auto; display: block; padding: 15px 30px; background: var(--secondary); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;" onclick="location.reload()">Alle Übungen neu mischen</button>
+</div>
+
+<script>
+    const data = [
+        { de: "Mein Telefon ist immer griffbereit.", parts: ["Мой", "телефон", "всегда"], fixed: "под", correctNoun: "рукой", options: ["рукой", "руку", "руки"] },
+        { de: "Die Lösung war direkt vor seiner Nase.", parts: ["Решение", "было", "прямо"], fixed: "под", correctNoun: "носом", options: ["носом", "носу", "носа"] },
+        { de: "Er steht unter dem Pantoffel seiner Frau.", parts: ["Он", "у своей жены"], fixed: "под", correctNoun: "каблуком", options: ["каблуком", "каблука", "каблук"] },
+        { de: "Das Essen ist unter Verschluss.", parts: ["Еда", "в холодильнике"], fixed: "под", correctNoun: "замком", options: ["замком", "замка", "замок"] },
+        { de: "Die Situation ist unter Kontrolle.", parts: ["Ситуация", "находится"], fixed: "под", correctNoun: "контролем", options: ["контролем", "контроля", "контроль"] },
+        { de: "Ich bin immer noch tief beeindruckt.", parts: ["Я", "до сих пор"], fixed: "под", correctNoun: "впечатлением", options: ["впечатлением", "впечатление", "впечатления"] },
+        { de: "Er unterschrieb unter Druck.", parts: ["Он", "подписал", "договор"], fixed: "под", correctNoun: "давлением", options: ["давлением", "давлению", "давление"] },
+        { de: "Diese Vögel sind bedroht.", parts: ["Эти", "птицы", "находятся"], fixed: "под", correctNoun: "угрозой", options: ["угрозой", "угрозу", "угрозы"] },
+        { de: "Das Haus wird bewacht.", parts: ["Этот", "дом", "находится"], fixed: "под", correctNoun: "охраной", options: ["охраной", "охрану", "охраны"] },
+        { de: "Das Kind ist unter Aufsicht.", parts: ["Ребёнок", "всегда"], fixed: "под", correctNoun: "присмотром", options: ["присмотром", "присмотра", "присмотр"] }
+    ];
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    const list = document.getElementById('exercise-list');
+
+    data.forEach((ex, exIdx) => {
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+        card.id = `card-${exIdx}`;
+
+        // Übersetzung
+        const trans = document.createElement('div');
+        trans.className = 'translation';
+        trans.innerText = `„${ex.de}“`;
+        card.appendChild(trans);
+
+        // Wortbank (Wörter zum Anklicken)
+        const bank = document.createElement('div');
+        bank.className = 'word-bank';
+        bank.id = `bank-${exIdx}`;
+
+        // Satzbereich
+        const area = document.createElement('div');
+        area.className = 'sentence-area';
+
+        // Slots für den Satzbau
+        ex.parts.forEach((_, sIdx) => {
+            const slot = document.createElement('div');
+            slot.className = 'slot';
+            slot.id = `slot-${exIdx}-${sIdx}`;
+            area.appendChild(slot);
+        });
+
+        // Die feste Präposition ПОД
+        const fixed = document.createElement('span');
+        fixed.className = 'fixed-word';
+        fixed.innerText = ex.fixed;
+        area.appendChild(fixed);
+
+        // Der finale Slot für das gewählte Nomen
+        const finalSlot = document.createElement('div');
+        finalSlot.className = 'slot';
+        finalSlot.id = `final-slot-${exIdx}`;
+        finalSlot.style.borderBottomColor = "var(--secondary)";
+        finalSlot.innerText = "[ ? ]";
+        area.appendChild(finalSlot);
+        area.innerHTML += `<span style="font-weight:bold; font-size:1.5rem;">.</span>`;
+
+        // Grammatik-Optionen (Buttons werden direkt angeboten)
+        const optionsContainer = document.createElement('div');
+        optionsContainer.className = 'noun-options-container';
+        optionsContainer.innerHTML = `<span class="options-label">Wähle die richtige Form für das Nomen:</span>`;
+        
+        const optionsRow = document.createElement('div');
+        optionsRow.className = 'options-row';
+
+        shuffle([...ex.options]).forEach(optText => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = optText;
+            btn.onclick = function() {
+                // Feedback Logik Nomen
+                const fSlot = document.getElementById(`final-slot-${exIdx}`);
+                fSlot.innerText = optText;
+                
+                // Alle Buttons dieser Reihe zurücksetzen
+                optionsRow.querySelectorAll('.option-btn').forEach(b => b.className = 'option-btn');
+                fSlot.classList.remove('correct', 'incorrect');
+
+                if (optText === ex.correctNoun) {
+                    this.classList.add('correct');
+                    fSlot.classList.add('correct');
+                } else {
+                    this.classList.add('incorrect');
+                    fSlot.classList.add('incorrect');
+                }
+            };
+            optionsRow.appendChild(btn);
+        });
+        optionsContainer.appendChild(optionsRow);
+
+        // Wörter in die Bank legen
+        shuffle([...ex.parts]).forEach(wordText => {
+            const wItem = document.createElement('div');
+            wItem.className = 'word-item';
+            wItem.innerText = wordText;
+            wItem.dataset.correctPos = ex.parts.indexOf(wordText);
+            
+            wItem.onclick = function() {
+                if (this.parentElement.classList.contains('word-bank')) {
+                    // Ins nächste freie Slot schieben
+                    for (let i = 0; i < ex.parts.length; i++) {
+                        const slot = document.getElementById(`slot-${exIdx}-${i}`);
+                        if (slot.children.length === 0) {
+                            slot.appendChild(this);
+                            // Feedback Position
+                            if (parseInt(this.dataset.correctPos) === i) this.classList.add('correct');
+                            else this.classList.add('incorrect');
+                            break;
+                        }
+                    }
+                } else {
+                    // Zurück in die Bank
+                    this.classList.remove('correct', 'incorrect');
+                    document.getElementById(`bank-${exIdx}`).appendChild(this);
+                }
+            };
+            bank.appendChild(wItem);
+        });
+
+        card.appendChild(bank);
+        card.appendChild(area);
+        card.appendChild(optionsContainer);
+        
+        // Einzel-Reset
+        const reset = document.createElement('button');
+        reset.className = 'btn-reset';
+        reset.innerText = 'Karte zurücksetzen';
+        reset.onclick = () => {
+            const b = document.getElementById(`bank-${exIdx}`);
+            card.querySelectorAll('.word-item').forEach(w => {
+                w.classList.remove('correct', 'incorrect');
+                b.appendChild(w);
+            });
+            const fs = document.getElementById(`final-slot-${exIdx}`);
+            fs.innerText = "[ ? ]";
+            fs.className = 'slot';
+            optionsRow.querySelectorAll('.option-btn').forEach(btn => btn.className = 'option-btn');
+        };
+        card.appendChild(reset);
+
+        list.appendChild(card);
+    });
+</script>
+
+</body>
+</html>
