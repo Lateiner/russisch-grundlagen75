@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synonym-Ersatz: Redewendungen mit ПОД</title>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #f4f7f9;
+            --white: #ffffff;
+            --border: #dcdde1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            background: var(--white);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        h1 { text-align: center; color: var(--primary); margin-bottom: 10px; font-size: 1.6rem; }
+        .instruction { text-align: center; color: #666; margin-bottom: 30px; display: block; font-size: 0.95rem; line-height: 1.5; }
+
+        .exercise-card {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .sentence {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .underlined {
+            text-decoration: underline;
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .translation {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            font-style: normal;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .option-btn {
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .option-btn:hover {
+            border-color: var(--secondary);
+            background: #f0f7ff;
+        }
+
+        /* Feedback-Farben */
+        .option-btn.correct {
+            background-color: var(--success) !important;
+            border-color: #1e8449 !important;
+            color: white !important;
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--error) !important;
+            border-color: #c0392b !important;
+            color: white !important;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: opacity 0.2s;
+        }
+
+        .btn-reset { background: #95a5a6; color: white; }
+        .btn-solve { background: var(--secondary); color: white; }
+        .action-btn:hover { opacity: 0.8; }
+
+        @media (max-width: 600px) {
+            .options-grid { grid-template-columns: 1fr; }
+            .sentence { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Synonym-Ersatz: ПОД</h1>
+    <span class="instruction">
+        Ersetze das unterstrichene Wort durch die passende Redewendung mit <b>ПОД</b>. <br>
+        Klicke einfach auf die richtige Lösung. <br>
+        <b>Feedback:</b> <span style="color:var(--success)">Grün = Richtig</span> | <span style="color:var(--error)">Rot = Falsch</span>
+    </span>
+
+    <div id="exercise-container"></div>
+
+    <button style="margin: 40px auto; display: block; padding: 15px 30px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;" onclick="location.reload()">Alle Übungen neu mischen</button>
+</div>
+
+<script>
+    const data = [
+        {
+            sentence: "Мой телефон всегда <span class='underlined'>близко</span>.",
+            translation: "Mein Telefon ist immer nah/griffbereit.",
+            correct: "под рукой",
+            options: ["под рукой", "под носом", "под замком", "под охраной"]
+        },
+        {
+            sentence: "Решение проблемы было <span class='underlined'>совсем рядом</span>, но он его не видел.",
+            translation: "Die Lösung des Problems war ganz nah (vor der Nase), aber er sah sie nicht.",
+            correct: "под носом",
+            options: ["под контролем", "под носом", "под присмотром", "под впечатлением"]
+        },
+        {
+            sentence: "Он делает всё, что говорит жена, он <span class='underlined'>подчиняется ей</span>.",
+            translation: "Er macht alles, was seine Frau sagt, er ist ihr unterwürfig (unter dem Pantoffel).",
+            correct: "под каблуком",
+            options: ["под защитой", "под каблуком", "под влиянием", "под давлением"]
+        },
+        {
+            sentence: "Еда в холодильнике должна быть <span class='underlined'>закрыта</span>.",
+            translation: "Das Essen im Kühlschrank sollte verschlossen (unter Verschluss) sein.",
+            correct: "под замком",
+            options: ["под замком", "под охраной", "под запретом", "под присмотром"]
+        },
+        {
+            sentence: "Не беспокойтесь, ситуация <span class='underlined'>проверяется нами</span>.",
+            translation: "Keine Sorge, die Situation wird von uns geprüft (ist unter Kontrolle).",
+            correct: "под контролем",
+            options: ["под угрозой", "под контролем", "под впечатлением", "под присмотром"]
+        },
+        {
+            sentence: "Я очень <span class='underlined'>удивлён и обрадован</span> этим спектаклем.",
+            translation: "Ich bin sehr überrascht und erfreut (beeindruckt) von diesem Stück.",
+            correct: "под впечатлением",
+            options: ["под влиянием", "под давлением", "под впечатлением", "под охраной"]
+        },
+        {
+            sentence: "Он подписал договор, потому что на него <span class='underlined'>давили</span>.",
+            translation: "Er unterschrieb den Vertrag, weil man auf ihn Druck ausübte.",
+            correct: "под давлением",
+            options: ["под запретом", "под угрозой", "под присмотrom", "под давлением"]
+        },
+        {
+            sentence: "Эти животные могут скоро исчезнуть, они <span class='underlined'>в опасности</span>.",
+            translation: "Diese Tiere könnten bald verschwinden, sie sind in Gefahr (bedroht).",
+            correct: "под угрозой",
+            options: ["под угрозой", "под защитой", "под замком", "под контролем"]
+        },
+        {
+            sentence: "Эта территория <span class='underlined'>защищается</span> государством.",
+            translation: "Dieses Gebiet wird vom Staat geschützt.",
+            correct: "под защитой",
+            options: ["под охраной", "под защитой", "под каблуком", "под присмотром"]
+        },
+        {
+            sentence: "Моя квартира <span class='underlined'>с сигнализацией</span>.",
+            translation: "Meine Wohnung ist mit einer Alarmanlage (bewacht/gesichert).",
+            correct: "под охраной",
+            options: ["под замком", "под охраной", "под контролем", "под присмотром"]
+        },
+        {
+            sentence: "Эта тема <span class='underlined'>не разрешена</span> для обсуждения.",
+            translation: "Dieses Thema ist für die Diskussion nicht erlaubt (verboten).",
+            correct: "под запретом",
+            options: ["под запретом", "под замком", "под давлением", "под угрозой"]
+        },
+        {
+            sentence: "Моя собака сейчас <span class='underlined'>с моим братом</span>, он смотрит за ней.",
+            translation: "Mein Hund ist gerade bei meinem Bruder, er passt auf sie auf (unter Aufsicht).",
+            correct: "под присмотром",
+            options: ["под влиянием", "под присмотром", "под впечатлением", "под контролем"]
+        }
+    ];
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    const container = document.getElementById('exercise-container');
+
+    shuffle(data).forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+        card.id = `card-${idx}`;
+
+        const sentenceDiv = document.createElement('div');
+        sentenceDiv.className = 'sentence';
+        sentenceDiv.innerHTML = `${idx + 1}. ${item.sentence}`;
+        card.appendChild(sentenceDiv);
+
+        const translationDiv = document.createElement('div');
+        translationDiv.className = 'translation';
+        translationDiv.innerText = `„${item.translation}“`;
+        card.appendChild(translationDiv);
+
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'options-grid';
+
+        // Optionen mischen
+        const shuffledOptions = shuffle([...item.options]);
+
+        shuffledOptions.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = function() {
+                const buttons = card.querySelectorAll('.option-btn');
+                buttons.forEach(b => b.className = 'option-btn'); // Reset andere
+                
+                if (opt === item.correct) {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('incorrect');
+                }
+            };
+            optionsGrid.appendChild(btn);
+        });
+
+        card.appendChild(optionsGrid);
+
+        const btnGroup = document.createElement('div');
+        btnGroup.className = 'btn-group';
+
+        const resetBtn = document.createElement('button');
+        resetBtn.className = 'action-btn btn-reset';
+        resetBtn.innerText = 'Reset';
+        resetBtn.onclick = () => {
+            card.querySelectorAll('.option-btn').forEach(b => b.className = 'option-btn');
+        };
+
+        const solveBtn = document.createElement('button');
+        solveBtn.className = 'action-btn btn-solve';
+        solveBtn.innerText = 'Lösung anzeigen';
+        solveBtn.onclick = () => {
+            card.querySelectorAll('.option-btn').forEach(b => {
+                b.className = 'option-btn';
+                if (b.innerText === item.correct) b.classList.add('correct');
+            });
+        };
+
+        btnGroup.appendChild(resetBtn);
+        btnGroup.appendChild(solveBtn);
+        card.appendChild(btnGroup);
+
+        container.appendChild(card);
+    });
+</script>
+
+</body>
+</html>
