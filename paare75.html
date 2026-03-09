@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matching: Redewendungen mit ПОД</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #f0f2f5;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: var(--white);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 { text-align: center; font-size: 1.5rem; margin-bottom: 5px; }
+        .instruction { text-align: center; color: #666; margin-bottom: 20px; font-size: 0.9rem; }
+
+        .matching-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .match-card {
+            background: #fff;
+            border: 2px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            user-select: none;
+            transition: all 0.2s;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .match-card.selected {
+            border-color: var(--secondary);
+            background-color: #e1f5fe;
+            transform: scale(1.02);
+        }
+
+        .match-card.incorrect {
+            background-color: var(--error) !important;
+            color: white;
+            border-color: #c0392b;
+        }
+
+        .match-card.correct {
+            cursor: default;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            border-color: rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: opacity 0.2s;
+        }
+
+        .btn-solve { background: var(--success); color: white; }
+        .btn-reset { background: var(--secondary); color: white; }
+
+        @media (max-width: 600px) {
+            .matching-grid { gap: 8px; }
+            .match-card { font-size: 0.8rem; padding: 8px; }
+            h1 { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Bedeutungs-Matching: ПОД</h1>
+    <p class="instruction">
+        Klicke eine russische Wendung und die passende deutsche Bedeutung an. <br>
+        Richtige Paare werden <b>farbig zusammengehörig</b> markiert.
+    </p>
+
+    <div class="matching-grid">
+        <div class="column" id="ru-col"></div>
+        <div class="column" id="de-col"></div>
+    </div>
+
+    <div class="controls">
+        <button class="btn-reset" onclick="location.reload()">Neu mischen</button>
+        <button class="btn-solve" onclick="showSolution()">Lösung anzeigen</button>
+    </div>
+</div>
+
+<script>
+    const pairs = [
+        { ru: "под рукой", de: "griffbereit / zur Hand" },
+        { ru: "под носом", de: "direkt vor der Nase" },
+        { ru: "под каблуком", de: "unter dem Pantoffel" },
+        { ru: "под замком", de: "unter Verschluss" },
+        { ru: "под контролем", de: "unter Kontrolle" },
+        { ru: "под впечатлением", de: "beeindruckt sein" },
+        { ru: "под давлением", de: "unter Druck" },
+        { ru: "под угрозой", de: "bedroht / in Gefahr" },
+        { ru: "под защитой", de: "unter Schutz stehen" },
+        { ru: "под охраной", de: "bewacht werden" },
+        { ru: "под присмотром", de: "unter Aufsicht" },
+        { ru: "под влиянием", de: "unter Einfluss" },
+        { ru: "под запретом", de: "verboten sein" },
+        { ru: "под следствием", de: "unter Untersuchung" },
+        { ru: "под арестом", de: "unter Arrest" },
+        { ru: "под сомнением", de: "unter Zweifel" },
+        { ru: "под наблюдением", de: "unter Beobachtung" },
+        { ru: "под рукой (телефон)", de: "ständig verfügbar" },
+        { ru: "под угрозой вымирания", de: "vom Aussterben bedroht" },
+        { ru: "под охраной (сигнализация)", de: "gesichert (Alarm)" }
+    ];
+
+    // Farben generieren (HSL für gute Unterscheidbarkeit)
+    const colors = pairs.map((_, i) => `hsl(${(i * 137.5) % 360}, 65%, 45%)`);
+
+    let selectedRU = null;
+    let selectedDE = null;
+    let isProcessing = false;
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    function init() {
+        const ruCol = document.getElementById('ru-col');
+        const deCol = document.getElementById('de-col');
+
+        const ruItems = shuffle(pairs.map((p, i) => ({ text: p.ru, id: i })));
+        const deItems = shuffle(pairs.map((p, i) => ({ text: p.de, id: i })));
+
+        ruItems.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'match-card';
+            div.innerText = item.text;
+            div.dataset.id = item.id;
+            div.onclick = () => selectCard(div, 'ru');
+            ruCol.appendChild(div);
+        });
+
+        deItems.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'match-card';
+            div.innerText = item.text;
+            div.dataset.id = item.id;
+            div.onclick = () => selectCard(div, 'de');
+            deCol.appendChild(div);
+        });
+    }
+
+    function selectCard(card, type) {
+        if (isProcessing || card.classList.contains('correct')) return;
+
+        if (type === 'ru') {
+            document.querySelectorAll('#ru-col .match-card').forEach(c => c.classList.remove('selected'));
+            selectedRU = card;
+        } else {
+            document.querySelectorAll('#de-col .match-card').forEach(c => c.classList.remove('selected'));
+            selectedDE = card;
+        }
+        card.classList.add('selected');
+
+        if (selectedRU && selectedDE) {
+            checkMatch();
+        }
+    }
+
+    function checkMatch() {
+        isProcessing = true;
+        const idRU = selectedRU.dataset.id;
+        const idDE = selectedDE.dataset.id;
+
+        if (idRU === idDE) {
+            // Richtig
+            const color = colors[idRU];
+            applyPairStyle(selectedRU, selectedDE, color);
+            selectedRU = null;
+            selectedDE = null;
+            isProcessing = false;
+        } else {
+            // Falsch
+            selectedRU.classList.add('incorrect');
+            selectedDE.classList.add('incorrect');
+            setTimeout(() => {
+                selectedRU.classList.remove('incorrect', 'selected');
+                selectedDE.classList.remove('incorrect', 'selected');
+                selectedRU = null;
+                selectedDE = null;
+                isProcessing = false;
+            }, 600);
+        }
+    }
+
+    function applyPairStyle(card1, card2, color) {
+        [card1, card2].forEach(c => {
+            c.classList.remove('selected', 'incorrect');
+            c.classList.add('correct');
+            c.style.backgroundColor = color;
+        });
+    }
+
+    function showSolution() {
+        const ruCards = document.querySelectorAll('#ru-col .match-card');
+        const deCards = document.querySelectorAll('#de-col .match-card');
+
+        ruCards.forEach(ruCard => {
+            const id = ruCard.dataset.id;
+            const deCard = Array.from(deCards).find(c => c.dataset.id === id);
+            const color = colors[id];
+            applyPairStyle(ruCard, deCard, color);
+        });
+        selectedRU = null;
+        selectedDE = null;
+    }
+
+    init();
+</script>
+
+</body>
+</html>
