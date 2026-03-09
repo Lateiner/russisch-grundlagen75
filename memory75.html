@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory: Redewendungen mit ПОД</title>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #f0f2f5;
+            --card-back: #34495e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 { font-size: 1.4rem; text-align: center; margin-bottom: 10px; }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            background: #eee;
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+
+        /* Das Spielfeld */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr); /* 6 Spalten für kleinere Boxen */
+            gap: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .memory-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        .card {
+            aspect-ratio: 1 / 1;
+            cursor: pointer;
+            perspective: 1000px;
+            position: relative;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        /* Wenn ein Paar gefunden wurde: Verschwinden */
+        .card.matched {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s 0.3s;
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 4px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card-back {
+            background-color: var(--card-back);
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .card-front {
+            background-color: #fff;
+            border: 1px solid var(--secondary);
+            transform: rotateY(180deg);
+            word-break: break-word;
+        }
+
+        /* Lösungsmodus: Unterschiedliche Farben pro Paar */
+        .solved-mode .card-inner { transform: rotateY(180deg); }
+        .solved-mode .card { opacity: 1 !important; pointer-events: none; }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .btn-reset { background: var(--secondary); color: white; }
+        .btn-solve { background: var(--primary); color: white; }
+        button:hover { opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Memory: ПОД-Redewendungen</h1>
+    
+    <div class="stats">
+        <span>Gefunden: <span id="match-count">0</span> / 12</span>
+        <span>Versuche: <span id="attempts">0</span></span>
+    </div>
+
+    <div class="memory-grid" id="grid"></div>
+
+    <div class="controls">
+        <button class="btn-reset" onclick="initGame()">Neu mischen</button>
+        <button class="btn-solve" onclick="showSolution()">Lösung anzeigen</button>
+    </div>
+</div>
+
+<script>
+    const pairs = [
+        { ru: "под рукой", de: "griffbereit" },
+        { ru: "под носом", de: "direkt vor der Nase" },
+        { ru: "под каблуком", de: "unter dem Pantoffel" },
+        { ru: "под замком", de: "unter Verschluss" },
+        { ru: "под контролем", de: "unter Kontrolle" },
+        { ru: "под впечатлением", de: "beeindruckt" },
+        { ru: "под давлением", de: "unter Druck" },
+        { ru: "под угрозой", de: "bedroht" },
+        { ru: "под защитой", de: "unter Schutz" },
+        { ru: "под охраной", de: "bewacht" },
+        { ru: "под присмотром", de: "unter Aufsicht" },
+        { ru: "под влиянием", de: "unter Einfluss" }
+    ];
+
+    // 12 unterscheidbare Farben für die Lösung
+    const pairColors = [
+        "#FFADAD", "#FFD6A5", "#FDFFB6", "#CAFFBF", 
+        "#9BF6FF", "#A0C4FF", "#BDB2FF", "#FFC6FF", 
+        "#FF9B9B", "#C0E4F6", "#B2F7EF", "#F7D1CD"
+    ];
+
+    let flippedCards = [];
+    let matchedCount = 0;
+    let attemptCount = 0;
+    let lockBoard = false;
+
+    function initGame() {
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        grid.classList.remove('solved-mode');
+        flippedCards = [];
+        matchedCount = 0;
+        attemptCount = 0;
+        lockBoard = false;
+        document.getElementById('match-count').innerText = '0';
+        document.getElementById('attempts').innerText = '0';
+
+        let deck = [];
+        pairs.forEach((p, i) => {
+            deck.push({ text: p.ru, pairId: i });
+            deck.push({ text: p.de, pairId: i });
+        });
+
+        deck.sort(() => Math.random() - 0.5);
+
+        deck.forEach((data) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.pairId = data.pairId;
+            card.innerHTML = `
+                <div class="card-inner">
+                    <div class="card-face card-back">?</div>
+                    <div class="card-face card-front" style="border-bottom: 4px solid ${pairColors[data.pairId]}">${data.text}</div>
+                </div>
+            `;
+            card.onclick = () => flip(card);
+            grid.appendChild(card);
+        });
+    }
+
+    function flip(card) {
+        if (lockBoard || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+        card.classList.add('flipped');
+        flippedCards.push(card);
+
+        if (flippedCards.length === 2) {
+            attemptCount++;
+            document.getElementById('attempts').innerText = attemptCount;
+            checkMatch();
+        }
+    }
+
+    function checkMatch() {
+        lockBoard = true;
+        const [c1, c2] = flippedCards;
+        const isMatch = c1.dataset.pairId === c2.dataset.pairId;
+
+        if (isMatch) {
+            matchedCount++;
+            document.getElementById('match-count').innerText = matchedCount;
+            setTimeout(() => {
+                c1.classList.add('matched');
+                c2.classList.add('matched');
+                flippedCards = [];
+                lockBoard = false;
+                if (matchedCount === 12) alert("Sehr gut! Alle Paare gefunden.");
+            }, 600);
+        } else {
+            setTimeout(() => {
+                c1.classList.remove('flipped');
+                c2.classList.remove('flipped');
+                flippedCards = [];
+                lockBoard = false;
+            }, 1000);
+        }
+    }
+
+    function showSolution() {
+        const grid = document.getElementById('grid');
+        grid.classList.add('solved-mode');
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            const pid = card.dataset.pairId;
+            card.querySelector('.card-front').style.backgroundColor = pairColors[pid];
+        });
+    }
+
+    initGame();
+</script>
+</body>
+</html>
