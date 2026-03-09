@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammatik-Check: Instrumental mit ПОД</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #f8f9fa;
+            --white: #ffffff;
+            --border: #dcdde1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            background: var(--white);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 10px;
+        }
+
+        h1 { text-align: center; color: var(--primary); font-size: 1.6rem; margin-bottom: 10px; }
+        .instruction { text-align: center; color: #666; margin-bottom: 30px; line-height: 1.4; font-size: 0.95rem; }
+
+        .exercise-card {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sentence-row {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* Dropdown/Input Styling */
+        .grammar-select {
+            padding: 5px 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background-color: white;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s;
+            color: var(--primary);
+            margin: 0 5px;
+        }
+
+        /* Sofort-Feedback Farben */
+        .correct {
+            border-color: var(--success) !important;
+            background-color: #eafaf1 !important;
+            color: var(--success) !important;
+        }
+
+        .incorrect {
+            border-color: var(--error) !important;
+            background-color: #fdedec !important;
+            color: var(--error) !important;
+        }
+
+        .translation {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+            transition: opacity 0.2s;
+        }
+
+        .btn-solve { background: var(--secondary); color: white; }
+        .btn-reset { background: #95a5a6; color: white; }
+        button:hover { opacity: 0.8; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .sentence-row { font-size: 1rem; }
+            .grammar-select { width: 100%; margin: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Grammatik-Check: Instrumental-Endungen</h1>
+    <p class="instruction">
+        Wähle die richtige Form des Nomens nach der Präposition <b>ПОД</b>. <br>
+        Das Feld wird sofort <span style="color:var(--success)">grün (richtig)</span> oder <span style="color:var(--error)">rot (falsch)</span> gefärbt.
+    </p>
+
+    <div id="exercise-list"></div>
+
+    <button class="btn-reset" style="margin: 30px auto; display: block; width: 220px; font-size: 1rem; padding: 12px;" onclick="location.reload()">Alles neu mischen</button>
+</div>
+
+<script>
+    const data = [
+        { s: "Телефон всегда под ...", correct: "рукой", options: ["рукой", "руку", "руки"], t: "Das Telefon ist immer griffbereit." },
+        { s: "Решение было под ...", correct: "носом", options: ["носом", "носа", "носе"], t: "Die Lösung war direkt vor der Nase." },
+        { s: "Он находится под ... жены.", correct: "каблуком", options: ["каблуком", "каблука", "каблуке"], t: "Er steht unter dem Pantoffel seiner Frau." },
+        { s: "Еда под ...", correct: "замком", options: ["замком", "замка", "замок"], t: "Das Essen ist unter Verschluss." },
+        { s: "Всё под ...", correct: "контролем", options: ["контролем", "контроля", "контроль"], t: "Alles ist unter Kontrolle." },
+        { s: "Я под ... от фильма.", correct: "впечатлением", options: ["впечатлением", "впечатление", "впечатления"], t: "Ich bin beeindruckt vom Film." },
+        { s: "Он сделал это под ...", correct: "давлением", options: ["давлением", "давлению", "давление"], t: "Er tat es unter Druck." },
+        { s: "Природа под ... государства.", correct: "защитой", options: ["защитой", "защиту", "защиты"], t: "Die Natur steht unter dem Schutz des Staates." },
+        { s: "Дом под ...", correct: "охраной", options: ["охраной", "охрану", "охраны"], t: "Das Haus wird bewacht." },
+        { s: "Дети под ...", correct: "присмотром", options: ["присмотром", "присмотра", "присмотр"], t: "Die Kinder sind unter Aufsicht." },
+        { s: "Животные под ... вымирания.", correct: "угрозой", options: ["угрозой", "угрозу", "угрозы"], t: "Die Tiere sind vom Aussterben bedroht." },
+        { s: "Он под ... друга.", correct: "влиянием", options: ["влиянием", "влияние", "влияния"], t: "Er steht unter dem Einfluss eines Freundes." },
+        { s: "Эта тема под ...", correct: "запретом", options: ["запретом", "запрета", "запрет"], t: "Dieses Thema ist verboten." },
+        { s: "Вариант под ...", correct: "вопросом", options: ["вопросом", "вопроса", "вопрос"], t: "Die Option steht infrage." },
+        { s: "Документы под ...", correct: "наблюдением", options: ["наблюдением", "наблюдения", "наблюдение"], t: "Die Dokumente stehen unter Beobachtung." },
+        { s: "Преступник под ...", correct: "арестом", options: ["арестом", "ареста", "арест"], t: "Der Verbrecher ist unter Arrest." },
+        { s: "Он под ...", correct: "следствием", options: ["следствием", "следствия", "следствие"], t: "Gegen ihn wird ermittelt (unter Untersuchung)." },
+        { s: "Всё под ... (Знак вопроса)", correct: "сомнением", options: ["сомнением", "сомнения", "сомнение"], t: "Alles steht unter Zweifel." },
+        { s: "Он работает под моим ...", correct: "руководством", options: ["руководством", "руководства", "руководству"], t: "Er arbeitet unter meiner Leitung." },
+        { s: "Мы гуляли под ...", correct: "дождём", options: ["дождём", "дождя", "дождю"], t: "Wir spazierten im (unter dem) Regen." }
+    ];
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    const list = document.getElementById('exercise-list');
+
+    data.forEach((ex, idx) => {
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+        card.id = `card-${idx}`;
+
+        const sentence = document.createElement('div');
+        sentence.className = 'sentence-row';
+        
+        // Den Satz zerlegen, um das Dropdown an der richtigen Stelle einzufügen
+        const parts = ex.s.split('...');
+        
+        const select = document.createElement('select');
+        select.className = 'grammar-select';
+        select.id = `select-${idx}`;
+        
+        // Optionen mischen
+        const shuffledOpts = shuffle([...ex.options]);
+        let optHtml = `<option value="">-- ? --</option>`;
+        shuffledOpts.forEach(o => optHtml += `<option value="${o}">${o}</option>`);
+        select.innerHTML = optHtml;
+
+        // Sofort-Feedback Logik
+        select.onchange = function() {
+            this.classList.remove('correct', 'incorrect');
+            if (this.value === ex.correct) {
+                this.classList.add('correct');
+            } else if (this.value !== "") {
+                this.classList.add('incorrect');
+            }
+        };
+
+        sentence.appendChild(document.createTextNode(`${idx + 1}. ${parts[0]}`));
+        sentence.appendChild(select);
+        if (parts[1]) sentence.appendChild(document.createTextNode(parts[1]));
+
+        const translation = document.createElement('div');
+        translation.className = 'translation';
+        translation.innerText = ex.t;
+
+        const actions = document.createElement('div');
+        actions.className = 'card-actions';
+        
+        const solveBtn = document.createElement('button');
+        solveBtn.className = 'btn-solve';
+        solveBtn.innerText = 'Lösung';
+        solveBtn.onclick = () => {
+            select.value = ex.correct;
+            select.className = 'grammar-select correct';
+        };
+
+        const resetBtn = document.createElement('button');
+        resetBtn.className = 'btn-reset';
+        resetBtn.innerText = 'Reset';
+        resetBtn.onclick = () => {
+            select.value = "";
+            select.className = 'grammar-select';
+        };
+
+        actions.appendChild(solveBtn);
+        actions.appendChild(resetBtn);
+
+        card.appendChild(sentence);
+        card.appendChild(translation);
+        card.appendChild(actions);
+        list.appendChild(card);
+    });
+</script>
+
+</body>
+</html>
