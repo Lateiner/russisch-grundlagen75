@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vokabel-Trainer: Russische Ausdrücke mit ПОД</title>
+    <style>
+        :root {
+            --primary-green: #2e7d32;
+            --medium-green: #4caf50;
+            --light-green: #e8f5e9;
+            --accent-green: #1b5e20;
+            --card-shadow: rgba(0, 0, 0, 0.15);
+            --text-dark: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-green);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--accent-green);
+            margin-bottom: 10px;
+        }
+
+        .progress {
+            font-weight: bold;
+            color: var(--primary-green);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        /* Flashcard Area */
+        .flashcard-wrapper {
+            width: 100%;
+            max-width: 500px;
+            height: 300px;
+            perspective: 1000px;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 8px 25px var(--card-shadow);
+            border-radius: 15px;
+        }
+
+        .flashcard-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            border: 2px solid var(--medium-green);
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background-color: #fff;
+        }
+
+        .card-side-label {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 0.8rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .content {
+            word-wrap: break-word;
+            width: 100%;
+            line-height: 1.4;
+            color: var(--accent-green);
+        }
+
+        /* Navigation & Buttons */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            max-width: 600px;
+        }
+
+        button {
+            background-color: var(--medium-green);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover {
+            background-color: var(--primary-green);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .nav-main {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .secondary-controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .hint {
+            margin-top: 30px;
+            font-size: 0.85rem;
+            color: #666;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* Keyboard Icons */
+        kbd {
+            background-color: #eee;
+            border-radius: 3px;
+            border: 1px solid #b4b4b4;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+            color: #333;
+            display: inline-block;
+            font-size: 0.85em;
+            font-weight: 700;
+            line-height: 1;
+            padding: 2px 4px;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 480px) {
+            .flashcard-wrapper {
+                height: 250px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Russisch Lernkartei</h1>
+        <p>Präposition <b>ПОД</b> & Vokabeln</p>
+    </header>
+
+    <div class="progress" id="progressDisplay">1 / 95</div>
+
+    <div class="flashcard-wrapper" id="cardWrapper" title="Klicken zum Umdrehen">
+        <div class="flashcard-inner" id="cardInner">
+            <div class="card-face card-front">
+                <span class="card-side-label">Russisch</span>
+                <div class="content" id="frontText">Lädt...</div>
+            </div>
+            <div class="card-face card-back">
+                <span class="card-side-label">Deutsch</span>
+                <div class="content" id="backText">Lädt...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="nav-main">
+            <button id="prevBtn">← Vorherige</button>
+            <button id="nextBtn">Nächste →</button>
+        </div>
+        <div class="secondary-controls">
+            <button id="startBtn">An den Anfang</button>
+            <button id="shuffleBtn">🔀 Mischen</button>
+        </div>
+    </div>
+
+    <div class="hint">
+        <b>Steuerung:</b><br>
+        Umdrehen: <kbd>Leertaste</kbd> oder <kbd>Enter</kbd><br>
+        Navigieren: <kbd>←</kbd> <kbd>→</kbd> | Anfang: <kbd>Pos1</kbd>
+    </div>
+
+    <script>
+        // Die Vokabelliste als String
+        const rawData = `1.	под руко́й – griffbereit, zur Hand
+2.	под но́сом – direkt vor der Nase
+3.	под каблуко́м – unter dem Pantoffel (einer Person)
+4.	под замко́м – unter Verschluss, hinter Schloss und Riegel
+5.	под контро́лем – unter Kontrolle
+6.	под впечатле́нием – beeindruckt, unter dem Eindruck (eines Erlebnisses)
+7.	под давле́нием – unter Druck
+8.	под угро́зой – bedroht, in Gefahr
+9.	под защи́той – unter Schutz
+10.	под охра́ной – bewacht, gesichert (z. B. durch Alarmanlage)
+11.	под присмо́тром – unter Aufsicht, betreut
+12.	под влия́нием – unter Einfluss
+13.	под запре́том – verboten, untersagt
+14.	под сле́дствием – unter Untersuchung (gerichtlich)
+15.	под вопро́сом – fraglich, infrage stehend
+16.	под аре́стом – unter Arrest
+17.	под сомне́нием – im Zweifel, zweifelhaft
+18.	под наблюде́нием – unter Beobachtung
+19.	под руково́дством – unter der Leitung
+20.	под дождём – im Regen (wörtlich: unter dem Regen)
+21.	находи́ться (NSV) – sich befinden
+22.	держа́ть / подержа́ть (NSV/SV) – halten, aufbewahren
+23.	находи́ть / найти́ (NSV/SV) – finden
+24.	влия́ть / повлия́ть (NSV/SV) – beeinflussen, Einfluss nehmen
+25.	дави́ть / надави́ть (NSV/SV) – drücken, Druck ausüben
+26.	защища́ть / защити́ть (NSV/SV) – schützen, verteidigen
+27.	охраня́ть / поохраня́ть (NSV/SV) – bewachen, hüten
+28.	запреща́ть / запрети́ть (NSV/SV) – verbieten, untersagen
+29.	присма́тривать / присмотре́ть (NSV/SV) – beaufsichtigen, aufpassen (auf jemanden/etwas)
+30.	впечатля́ть / впечатли́ть (NSV/SV) – beeindrucken
+31.	подпи́сывать / подписа́ть (NSV/SV) – unterschreiben
+32.	вымира́ть / вы́мереть (NSV/SV) – aussterben
+33.	иска́ть / поиска́ть (NSV/SV) – suchen
+34.	устана́вливать / установи́ть (NSV/SV) – installieren, aufstellen
+35.	отвеча́ть / отве́тить (NSV/SV) – antworten
+36.	контроли́ровать / проконтроли́ровать (NSV/SV) – kontrollieren
+37.	испо́льзовать (NSV/SV) – benutzen, verwenden
+38.	скрыва́ть / скры́ть (NSV/SV) – verstecken, verbergen
+39.	сомнева́ться (NSV) – zweifeln
+40.	наблюда́ть (NSV) – beobachten, überwachen
+41.	телефо́н – Telefon
+42.	рука́ – Hand, Arm
+43.	нос – Nase
+44.	реше́ние – Lösung, Entscheidung
+45.	пробле́ма – Problem
+46.	жена́ – Ehefrau
+47.	каблу́к – Absatz
+48.	о́бувь – Schuhe, Schuhwerk
+49.	замо́к – Schloss (zum Verschließen)
+50.	холоди́льник – Kühlschrank
+51.	еда́ – Essen, Speise
+52.	контро́ль – Kontrolle
+53.	нача́льник – Chef, Vorgesetzter
+54.	ситуа́ция – Situation
+55.	впечатле́ние – Eindruck
+56.	музе́й – Museum
+57.	теа́тр – Theater
+58.	спекта́кль – Vorstellung, Aufführung
+59.	муж – Ehemann
+60.	давле́ние – Druck
+61.	догово́р – Vertrag
+62.	жизнь – Leben
+63.	рабо́та – Arbeit
+64.	угро́за – Drohung, Gefahr
+65.	вымира́ние – Aussterben
+66.	живо́тное – Tier
+67.	пти́ца – Vogel
+68.	защи́та – Schutz
+69.	госуда́рство – Staat
+70.	охра́на – Bewachung, Schutz
+71.	кварти́ра – Wohnung
+72.	о́тпуск – Urlaub
+73.	сигнализа́ция – Alarmanlage
+74.	соба́ка – Hund
+75.	гость – Gast
+76.	дом – Haus
+77.	влия́ние – Einfluss
+78.	друг – Freund
+79.	колле́га – Kollege
+80.	запре́т – Verbot
+81.	те́ма – Thema
+82.	присмо́тр – Aufsicht
+83.	брат – Bruder
+84.	оши́бка – Fehler
+85.	ссы́лка – Link, Verweis
+86.	зада́ние – Aufgabe
+87.	интере́сный – interessant
+88.	но́вый – neu
+89.	внима́тельный – aufmerksam
+90.	пусто́й – leer
+91.	гро́мкий – laut
+92.	уве́ренный – sicher, selbstbewusst
+93.	шика́рный – schick, großartig, prächtig
+94.	неполе́зный – ungesund, nicht nützlich
+95.	бли́зкий – nah`;
+
+        // Daten verarbeiten
+        let originalDeck = [];
+        
+        function parseData() {
+            const lines = rawData.trim().split('\n');
+            originalDeck = lines.map(line => {
+                // Entferne führende Zahl und Punkt (z.B. "1. ")
+                const cleanLine = line.replace(/^\d+\.\t?/, '');
+                const parts = cleanLine.split(' – ');
+                return {
+                    front: parts[0] ? parts[0].trim() : "",
+                    back: parts[1] ? parts[1].trim() : ""
+                };
+            });
+        }
+
+        parseData();
+        let currentDeck = [...originalDeck];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        // DOM Elemente
+        const cardWrapper = document.getElementById('cardWrapper');
+        const cardInner = document.getElementById('cardInner');
+        const frontText = document.getElementById('frontText');
+        const backText = document.getElementById('backText');
+        const progressDisplay = document.getElementById('progressDisplay');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const startBtn = document.getElementById('startBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+
+        function updateCard() {
+            isFlipped = false;
+            cardInner.classList.remove('is-flipped');
+            
+            const card = currentDeck[currentIndex];
+            frontText.innerText = card.front;
+            backText.innerText = card.back;
+            
+            progressDisplay.innerText = `${currentIndex + 1} / ${currentDeck.length}`;
+            
+            // Schriftgröße anpassen
+            adjustFontSize(frontText, card.front);
+            adjustFontSize(backText, card.back);
+
+            // Button Status
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === currentDeck.length - 1;
+        }
+
+        function adjustFontSize(element, text) {
+            const length = text.length;
+            if (length > 50) {
+                element.style.fontSize = "1.1rem";
+            } else if (length > 30) {
+                element.style.fontSize = "1.4rem";
+            } else {
+                element.style.fontSize = "1.8rem";
+            }
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            cardInner.classList.toggle('is-flipped');
+        }
+
+        function nextCard() {
+            if (currentIndex < currentDeck.length - 1) {
+                currentIndex++;
+                updateCard();
+            }
+        }
+
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+        }
+
+        function goToStart() {
+            currentIndex = 0;
+            updateCard();
+        }
+
+        function shuffleDeck() {
+            // Fisher-Yates Shuffle
+            for (let i = currentDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentDeck[i], currentDeck[j]] = [currentDeck[j], currentDeck[i]];
+            }
+            currentIndex = 0;
+            updateCard();
+            
+            // Visuelles Feedback
+            shuffleBtn.innerText = "✅ Gemiischt!";
+            setTimeout(() => { shuffleBtn.innerText = "🔀 Mischen"; }, 1000);
+        }
+
+        // Event Listeners - Klick
+        cardWrapper.addEventListener('click', flipCard);
+        nextBtn.addEventListener('click', nextCard);
+        prevBtn.addEventListener('click', prevCard);
+        startBtn.addEventListener('click', goToStart);
+        shuffleBtn.addEventListener('click', shuffleDeck);
+
+        // Event Listeners - Tastatur
+        window.addEventListener('keydown', (e) => {
+            if (e.key === " " || e.key === "Enter") {
+                e.preventDefault(); // Verhindert Scrollen bei Leertaste
+                flipCard();
+            } else if (e.key === "ArrowRight") {
+                nextCard();
+            } else if (e.key === "ArrowLeft") {
+                prevCard();
+            } else if (e.key === "Home") {
+                goToStart();
+            }
+        });
+
+        // Initialisierung
+        updateCard();
+
+    </script>
+</body>
+</html>
