@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio-Diktat: Redewendungen mit ПОД</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #f4f7f9;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: var(--white);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 { text-align: center; color: var(--primary); margin-bottom: 10px; }
+        .instruction { text-align: center; color: #666; margin-bottom: 30px; font-size: 0.95rem; }
+
+        .task-card {
+            background: #fff;
+            border: 2px solid #edf2f7;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn-play {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .btn-play:hover { transform: scale(1.1); }
+
+        .sentence-display {
+            min-height: 60px;
+            border-bottom: 2px solid #cbd5e0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .word-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            min-height: 50px;
+        }
+
+        .word-btn {
+            background: var(--primary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            user-select: none;
+            transition: all 0.2s;
+        }
+
+        /* Feedback Farben */
+        .correct { background-color: var(--success) !important; }
+        .incorrect { background-color: var(--error) !important; }
+
+        .card-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button.action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .btn-reset { background: #94a3b8; color: white; }
+        .btn-solve { background: var(--secondary); color: white; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .btn-play { width: 40px; height: 40px; font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Audio-Diktat: Redewendungen mit ПОД</h1>
+    <div class="instruction">
+        1. Klicke auf ▶️, um den russischen Satz zu hören. <br>
+        2. Klicke die Wörter in der richtigen Reihenfolge an. <br>
+        <b>Feedback:</b> <span style="color:var(--success)">Grün</span> = Richtig, <span style="color:var(--error)">Rot</span> = Falsch.
+    </div>
+
+    <div id="tasks-container"></div>
+
+    <button class="action-btn btn-reset" style="margin: 20px auto; display: block; width: 200px;" onclick="location.reload()">Alles neu mischen</button>
+</div>
+
+<script>
+    const exercises = [
+        { text: "Мой телефон всегда под рукой.", words: ["Мой", "телефон", "всегда", "под", "рукой."] },
+        { text: "Решение было прямо под носом.", words: ["Решение", "было", "прямо", "под", "носом."] },
+        { text: "Он у своей жены под каблуком.", words: ["Он", "у", "своей", "жены", "под", "каблуком."] },
+        { text: "Еда в холодильнике под замком.", words: ["Еда", "в", "холодильнике", "под", "замком."] },
+        { text: "Ситуация находится под контролем.", words: ["Ситуация", "находится", "под", "контролем."] },
+        { text: "Я нахожусь под впечатлением.", words: ["Я", "нахожусь", "под", "впечатлением."] },
+        { text: "Он подписал договор под давлением.", words: ["Он", "подписаal", "договор", "под", "давлением."] },
+        { text: "Животные под угрозой вымирания.", words: ["Животные", "под", "угрозой", "вымирания."] },
+        { text: "Эти птицы под защитой государства.", words: ["Эти", "птицы", "под", "защитой", "государства."] },
+        { text: "Квартира всегда под охраной.", words: ["Квартира", "всегда", "под", "охраной."] }
+    ];
+
+    let synth = window.speechSynthesis;
+    let russianMaleVoice = null;
+
+    // Stimme finden
+    function loadVoices() {
+        let voices = synth.getVoices();
+        // Suche nach russisch (ru-RU) und versuche eine männliche Stimme zu finden
+        russianMaleVoice = voices.find(v => v.lang.includes('ru') && (v.name.includes('Pavel') || v.name.includes('Dmitry') || v.name.includes('Male'))) 
+                           || voices.find(v => v.lang.includes('ru'));
+    }
+
+    loadVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    function playAudio(text) {
+        if (synth.speaking) synth.cancel();
+        let utter = new SpeechSynthesisUtterance(text);
+        utter.voice = russianMaleVoice;
+        utter.lang = 'ru-RU';
+        utter.rate = 0.8; // Etwas langsamer für Lerner
+        synth.speak(utter);
+    }
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    const container = document.getElementById('tasks-container');
+
+    exercises.forEach((ex, exIdx) => {
+        const card = document.createElement('div');
+        card.className = 'task-card';
+        card.id = `card-${exIdx}`;
+
+        const audioDiv = document.createElement('div');
+        audioDiv.className = 'audio-controls';
+        audioDiv.innerHTML = `
+            <button class="btn-play" onclick="playAudio('${ex.text}')">▶️</button>
+            <span style="font-weight:bold; color:#666;">Satz ${exIdx + 1} hören</span>
+        `;
+
+        const display = document.createElement('div');
+        display.className = 'sentence-display';
+        display.id = `display-${exIdx}`;
+
+        const cloud = document.createElement('div');
+        cloud.className = 'word-cloud';
+        cloud.id = `cloud-${exIdx}`;
+
+        // Wörter mischen
+        const shuffledWords = shuffle([...ex.words]);
+        shuffledWords.forEach((wordText, wIdx) => {
+            const btn = document.createElement('div');
+            btn.className = 'word-btn';
+            btn.innerText = wordText;
+            btn.id = `word-${exIdx}-${wIdx}`;
+            btn.onclick = () => handleWordClick(btn, exIdx, ex.words);
+            cloud.appendChild(btn);
+        });
+
+        const footer = document.createElement('div');
+        footer.className = 'card-footer';
+        footer.innerHTML = `
+            <button class="action-btn btn-reset" onclick="resetTask(${exIdx})">Reset</button>
+            <button class="action-btn btn-solve" onclick="solveTask(${exIdx})">Lösung</button>
+        `;
+
+        card.appendChild(audioDiv);
+        card.appendChild(display);
+        card.appendChild(cloud);
+        card.appendChild(footer);
+        container.appendChild(card);
+    });
+
+    function handleWordClick(btn, exIdx, correctWords) {
+        const display = document.getElementById(`display-${exIdx}`);
+        const cloud = document.getElementById(`cloud-${exIdx}`);
+
+        if (btn.parentElement.id.startsWith('cloud')) {
+            // Ins Display schieben
+            display.appendChild(btn);
+            const currentPos = Array.from(display.children).indexOf(btn);
+            
+            // Sofort-Feedback
+            if (btn.innerText === correctWords[currentPos]) {
+                btn.classList.add('correct');
+                btn.classList.remove('incorrect');
+            } else {
+                btn.classList.add('incorrect');
+                btn.classList.remove('correct');
+            }
+        } else {
+            // Zurück in die Cloud
+            btn.classList.remove('correct', 'incorrect');
+            cloud.appendChild(btn);
+            // Nachfolgende Wörter im Display neu prüfen
+            Array.from(display.children).forEach((child, index) => {
+                if (child.innerText === correctWords[index]) {
+                    child.classList.add('correct');
+                    child.classList.remove('incorrect');
+                } else {
+                    child.classList.add('incorrect');
+                    child.classList.remove('correct');
+                }
+            });
+        }
+    }
+
+    window.resetTask = function(exIdx) {
+        const display = document.getElementById(`display-${exIdx}`);
+        const cloud = document.getElementById(`cloud-${exIdx}`);
+        const words = Array.from(display.children);
+        words.forEach(w => {
+            w.classList.remove('correct', 'incorrect');
+            cloud.appendChild(w);
+        });
+    }
+
+    window.solveTask = function(exIdx) {
+        resetTask(exIdx);
+        const ex = exercises[exIdx];
+        const display = document.getElementById(`display-${exIdx}`);
+        const cloud = document.getElementById(`cloud-${exIdx}`);
+        
+        ex.words.forEach(correctText => {
+            const wordBtn = Array.from(cloud.children).find(b => b.innerText === correctText);
+            if (wordBtn) {
+                display.appendChild(wordBtn);
+                wordBtn.classList.add('correct');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
