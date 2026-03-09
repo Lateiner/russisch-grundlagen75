@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Szenarien-Check: Russische Redewendungen mit ПОД</title>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --bg: #f4f7f9;
+            --white: #ffffff;
+            --border: #dcdde1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            background: var(--white);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        h1 { text-align: center; color: var(--primary); margin-bottom: 10px; font-size: 1.6rem; }
+        .instruction { text-align: center; color: #666; margin-bottom: 30px; display: block; font-size: 0.95rem; line-height: 1.5; }
+
+        .scenario-card {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            transition: border 0.3s;
+        }
+
+        .situation {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--secondary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 10px;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .option-btn {
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .option-btn:hover {
+            border-color: var(--secondary);
+            background: #f0f7ff;
+        }
+
+        /* Sofort-Feedback Farben */
+        .option-btn.correct {
+            background-color: var(--success) !important;
+            border-color: #1e8449 !important;
+            color: white !important;
+        }
+
+        .option-btn.incorrect {
+            background-color: var(--error) !important;
+            border-color: #c0392b !important;
+            color: white !important;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button.action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+            transition: opacity 0.2s;
+        }
+
+        .btn-reset { background: #95a5a6; color: white; }
+        .btn-solve { background: var(--secondary); color: white; }
+        button:hover { opacity: 0.8; }
+
+        @media (max-width: 600px) {
+            .options-container { grid-template-columns: 1fr; }
+            .container { padding: 15px; }
+            .situation { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Logik-Check: Welcher Satz passt?</h1>
+    <span class="instruction">
+        Lies die deutsche Situation und klicke auf den logisch richtigen russischen Satz. <br>
+        <b>Feedback:</b> <span style="color:var(--success)">Grün = Richtig</span> | <span style="color:var(--error)">Rot = Falsch</span>
+    </span>
+
+    <div id="exercise-list"></div>
+
+    <button style="margin: 40px auto; display: block; padding: 12px 25px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;" onclick="location.reload()">Alles neu mischen</button>
+</div>
+
+<script>
+    const scenarios = [
+        {
+            situation: "Ira sucht verzweifelt ihr Handy, aber es liegt direkt vor ihr auf dem Tisch.",
+            options: [
+                { text: "Оно под носом.", correct: true },
+                { text: "Оно под охраной.", correct: false }
+            ]
+        },
+        {
+            situation: "Der Hund ist allein zu Hause, aber der Bruder schaut regelmäßig nach ihm.",
+            options: [
+                { text: "Собака под присмотром.", correct: true },
+                { text: "Собака под влиянием.", correct: false }
+            ]
+        },
+        {
+            situation: "In diesem Büro ist es strengstens untersagt, über Politik zu sprechen.",
+            options: [
+                { text: "Эта тема под замком.", correct: false },
+                { text: "Эта тема под запретом.", correct: true }
+            ]
+        },
+        {
+            situation: "Er hat keine eigene Meinung und macht alles, was seine Frau ihm befiehlt.",
+            options: [
+                { text: "Он под впечатлением.", correct: false },
+                { text: "Он под каблуком.", correct: true }
+            ]
+        },
+        {
+            situation: "Das wichtige Dokument befindet sich sicher verschlossen im Tresor.",
+            options: [
+                { text: "Оно под замком.", correct: true },
+                { text: "Оно под угрозой.", correct: false }
+            ]
+        },
+        {
+            situation: "Die Alarmanlage in der Wohnung ist aktiviert, während die Besitzer im Urlaub sind.",
+            options: [
+                { text: "Квартира под охраной.", correct: true },
+                { text: "Квартира под присмотром.", correct: false }
+            ]
+        },
+        {
+            situation: "Ein Mann wurde gezwungen, den Vertrag zu unterschreiben, weil man ihn bedroht hat.",
+            options: [
+                { text: "Он подписал под контролем.", correct: false },
+                { text: "Он подписал под давлением.", correct: true }
+            ]
+        },
+        {
+            situation: "Igor hat den ganzen Abend im Museum verbracht und kann nicht aufhören, über die Bilder zu reden.",
+            options: [
+                { text: "Он под впечатлением.", correct: true },
+                { text: "Он под влиянием.", correct: false }
+            ]
+        },
+        {
+            situation: "Die Fabrik leitet Gift in den Fluss. Es ist sehr wahrscheinlich, dass alle Fische sterben.",
+            options: [
+                { text: "Рыба под защитой.", correct: false },
+                { text: "Рыба под угрозой.", correct: true }
+            ]
+        },
+        {
+            situation: "Der Chef überwacht jeden Schritt des neuen Mitarbeiters ganz genau.",
+            options: [
+                { text: "Всё под контролем.", correct: true },
+                { text: "Всё под рукой.", correct: false }
+            ]
+        }
+    ];
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    const list = document.getElementById('exercise-list');
+
+    shuffle(scenarios).forEach((ex, idx) => {
+        const card = document.createElement('div');
+        card.className = 'scenario-card';
+        card.id = `card-${idx}`;
+
+        const situationDiv = document.createElement('div');
+        situationDiv.className = 'situation';
+        situationDiv.innerText = `„${ex.situation}“`;
+        card.appendChild(situationDiv);
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options-container';
+
+        // Optionen mischen
+        const shuffledOptions = shuffle([...ex.options]);
+
+        shuffledOptions.forEach((opt, optIdx) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt.text;
+            btn.dataset.isCorrect = opt.correct;
+            
+            btn.onclick = function() {
+                // Alle Buttons dieser Karte zurücksetzen
+                const btns = card.querySelectorAll('.option-btn');
+                btns.forEach(b => b.className = 'option-btn');
+
+                // Sofort-Feedback
+                if (this.dataset.isCorrect === "true") {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('incorrect');
+                }
+            };
+            optionsDiv.appendChild(btn);
+        });
+
+        card.appendChild(optionsDiv);
+
+        const controls = document.createElement('div');
+        controls.className = 'controls';
+        
+        const resetBtn = document.createElement('button');
+        resetBtn.className = 'action-btn btn-reset';
+        resetBtn.innerText = 'Reset';
+        resetBtn.onclick = () => {
+            const btns = card.querySelectorAll('.option-btn');
+            btns.forEach(b => b.className = 'option-btn');
+        };
+
+        const solveBtn = document.createElement('button');
+        solveBtn.className = 'action-btn btn-solve';
+        solveBtn.innerText = 'Lösung';
+        solveBtn.onclick = () => {
+            const btns = card.querySelectorAll('.option-btn');
+            btns.forEach(b => {
+                b.className = 'option-btn';
+                if (b.dataset.isCorrect === "true") {
+                    b.classList.add('correct');
+                }
+            });
+        };
+
+        controls.appendChild(resetBtn);
+        controls.appendChild(solveBtn);
+        card.appendChild(controls);
+
+        list.appendChild(card);
+    });
+</script>
+
+</body>
+</html>
